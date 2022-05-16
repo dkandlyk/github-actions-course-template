@@ -4,15 +4,36 @@
 name: Node.js CI
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Select Environment
+        options:
+          - development
+          - staging
+          - production
+        required: true
+      cache-tag:
+        type: choice
+        description: Select Cache Type
+        options:
+          - static
+          - global
+          - market
+        required: true
+      market-tag:
+        description: Enter market to invalidate
+        default: ''
+        required: false
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+    env:
+      ENV_NAME: ${{ github.event.inputs.environment || 'development' }}
+      CACHE_TAG: ${{ github.event.inputs.cache-tag || 'global' }}
+      MARKET_TAG: ${{ github.event.inputs.market-tag || '' }}
     steps:
       - uses: actions/checkout@v2
       - name: npm install and build webpack
